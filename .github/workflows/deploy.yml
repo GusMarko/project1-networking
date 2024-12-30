@@ -1,0 +1,77 @@
+name: "Deploy Networking resources"
+
+on:
+    pull_request:
+        branches:
+             - main
+             - dev
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+
+
+jobs:
+    validation:
+        name: "Validation Job"
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Setup Python
+              uses: actions/checkout@v2
+
+            - name: Python Setup
+              uses: actions/setup/python@v2
+
+            - name: Run Pyhton Helper Script
+              run: |
+                cd scripts
+                python3 replace_tf_values.py
+
+            - name: Terraform Setup
+              uses: hashicorp/setup-terraform@v2
+
+            - name: Validate Terraform
+              run: |
+                cd iac
+                terraform validate
+
+            - name: Plan Terraform Changes
+              run: |
+                cd iac
+                terraform plan -out=tfplan
+
+            - name: Upload Plan Artifact
+              uses: actions/uplo-artifact@v3
+              with:
+                name: terraform-plan
+                path: iac/tfplan
+
+    deployment:
+        name: "Deployment Job"
+        needs: validation
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Download Plan Artifact
+              uses: actions/download-artifact@v3
+              with:
+                name: terraform-plan
+                path: iac 
+            
+            - name: Terraform Setup
+              uses: hashicorp/setup-terraform@v2
+
+            - name: Apply Terraform Resources
+              run: |
+                cd iac
+                terraform apply -auto-approve tfplan
+
+              
