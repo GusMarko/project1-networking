@@ -29,7 +29,7 @@ jobs:
 
             - name: Run Pyhton Helper Script
               run: |
-                cd scripts
+                cd script
                 python3 replace_tf_values.py
 
             - name: Terraform Setup
