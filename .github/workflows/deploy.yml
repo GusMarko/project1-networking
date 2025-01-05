@@ -25,7 +25,7 @@ jobs:
               uses: actions/checkout@v2
 
             - name: Python Setup
-              uses: actions/setup/python@v2
+              uses: actions/setup-python@v2
 
             - name: Run Pyhton Helper Script
               run: |
@@ -46,7 +46,7 @@ jobs:
                 terraform plan -out=tfplan
 
             - name: Upload Plan Artifact
-              uses: actions/uplo-artifact@v3
+              uses: actions/upload-artifact@v3
               with:
                 name: terraform-plan
                 path: iac/tfplan
