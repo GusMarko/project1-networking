@@ -27,10 +27,16 @@ jobs:
             - name: Python Setup
               uses: actions/setup-python@v2
 
-            - name: Run Pyhton Helper Script
+            - name: Run Python Helper Script
               run: |
                 cd script
                 python3 replace_tf_values.py
+
+            - name: Upload Updated Terraform Files
+              uses: actions/upload-artifact@v3
+              with:
+                name: updated-terraform-files
+                path: iac/
 
             - name: Terraform Setup
               uses: hashicorp/setup-terraform@v2
@@ -60,6 +66,12 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v2
+
+            - name: Download Updated Terraform Files
+              uses: actions/download-artifact@v3
+              with:
+                name: updated-terraform-files
+                path: iac 
 
             - name: Download Plan Artifact
               uses: actions/download-artifact@v3
